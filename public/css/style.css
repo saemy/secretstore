@@ -18,6 +18,8 @@ h1 {
     margin: 4px 0 12px;
 }
 
+/********************************** Positions *********************************/
+
 #container {
     height: 100%;
     margin: 0 auto;
@@ -54,6 +56,14 @@ aside ul {
     width: auto;
     margin-left: 160px;
 }
+
+/************************************ Login ***********************************/
+
+#login {
+    text-align: center;
+}
+
+/*********************************** Keyring***********************************/
 
 .keyring {
     border: 1px solid #ddd;

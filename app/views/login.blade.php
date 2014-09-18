@@ -5,7 +5,7 @@
 @stop
 
 @section('content')
-    <div id="login-region">
+    <div id="login">
         <h1>{{ Lang::get('secretstore.login') }}</h1>
         @if (Session::has('login_errors'))
             <div class="alert alert-block alert-error">
