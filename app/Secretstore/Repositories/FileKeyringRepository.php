@@ -4,7 +4,7 @@ use Auth;
 use File;
 use Illuminate\Auth\UserInterface;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
-use Secretstore\Keyring;
+use Secretstore\Keyrings\Gnome\GnomeKeyring;
 use Validator;
 
 class FileKeyringRepository implements KeyringRepositoryInterface {
@@ -15,13 +15,16 @@ class FileKeyringRepository implements KeyringRepositoryInterface {
      */
     private $user;
 
+    /**
+     * Every keyring is only instantiated once. This map caches them.
+     * @var Keyring[]
+     */
+    private $keyringCache;
+
     public function __construct() {
         $this->user = Auth::check() ? Auth::user() : null;
     }
 
-    /**
-     * Returns
-     */
     public function all() {
         $keyrings = array();
 
@@ -30,30 +33,36 @@ class FileKeyringRepository implements KeyringRepositoryInterface {
             $keyringFiles = File::glob(
                     self::getKeyringStoragePath($this->user) . '*.keyring');
             foreach ($keyringFiles as $keyringFile) {
-                $name = self::getKeyringNameFromFilename($keyringFile);
-                $keyrings[] = new Keyring($keyringFile, $name);
+                $id = self::getKeyringIdFromFilename($keyringFile);
+                $keyrings[] = new GnomeKeyring($id, $keyringFile);
             }
         }
 
         return $keyrings;
     }
 
-    public function find($name) {
+    public function find($id) {
         $this->requireUser();
 
-        $keyringFile = self::getFilenameFromKeyringName($user, $name);
-        if (!File::exists($keyringFile)) {
-            throw new ModelNotFoundException;
+        $keyring = $this->keyringCache[$id];
+        if (!$keyring) {
+            $keyringFile = self::getFilenameFromKeyringId($this->user, $id);
+            if (!File::exists($keyringFile)) {
+                throw new ModelNotFoundException;
+            }
+
+            $keyring = new GnomeKeyring($id, $keyringFile);
+            $this->keyringCache[$id] = $keyring;
         }
 
-        return new Keyring($keyringFile);
+        return $keyring;
     }
 
-    public function create($name, $filename) {
+    public function create($id, $filename) {
         throw Exception('NYI');
     }
 
-    public function validForCreation($name, $filename) {
+    public function validForCreation($id, $filename) {
         throw Exception('NYI');
 //         $rules = array(
 //             'name' => 'required|unique',
@@ -65,10 +74,10 @@ class FileKeyringRepository implements KeyringRepositoryInterface {
 //         return $validator->errors();
     }
 
-    public function delete($name) {
+    public function delete($id) {
         $this->requireUser();
 
-        $keyringFile = self::getFilenameFromKeyringName($user, $name);
+        $keyringFile = self::getFilenameFromKeyringId($user, $id);
         $success = File::delete($keyringFile);
 
         if (!$success) {
@@ -83,12 +92,12 @@ class FileKeyringRepository implements KeyringRepositoryInterface {
     }
 
     /**
-     * Returns the keyring name from given filename.
+     * Returns the keyring id from given filename.
      *
      * @param string $filename The filename.
-     * @return string The keyring name.
+     * @return string The keyring id.
      */
-    private static function getKeyringNameFromFilename($filename) {
+    private static function getKeyringIdFromFilename($filename) {
         $numMatches = preg_match('/\/([^\/]+)\.keyring/', $filename, $matches);
         if ($numMatches != 1) {
             throw new InvalidArgumentException('Invalid keyring filename.');
@@ -98,15 +107,15 @@ class FileKeyringRepository implements KeyringRepositoryInterface {
     }
 
     /**
-     * Returns the keyring storage path for a given keyring name of given user.
+     * Returns the keyring storage path for a given keyring id of given user.
      *
      * @param UserInterface $user The user the keyring belongs to.
-     * @param string $keyringName The name of the keyring.
+     * @param string $keyringId The id of the keyring.
      * @return string The filename.
      */
-    private static function getFilenameFromKeyringName($user, $keyringName) {
+    private static function getFilenameFromKeyringId($user, $keyringId) {
         return sprintf('%s%s.keyring',
-                       self::getKeyringStoragePath($user), $keyringName);
+                       self::getKeyringStoragePath($user), $keyringId);
     }
 
     /**

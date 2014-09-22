@@ -4,6 +4,7 @@ return array(
     'keyrings' => 'Keyrings',
     'logout' => 'Logout',
     'login' => 'Login',
+    'secretstore' => 'Secretstore',
 
     // Login
     'login_username' => 'Username',

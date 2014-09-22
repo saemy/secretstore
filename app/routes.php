@@ -19,6 +19,8 @@ Route::group(array('before' => 'auth'), function() {
         return Redirect::to('keyring');
     });
 
+    Route::post('keyring/{id}/unlock', 'KeyringController@postUnlock');
+    Route::get('keyring/{id}/secret/{entryId}', 'KeyringController@getSecret');
     Route::controller('keyring', 'KeyringController');
 });
 

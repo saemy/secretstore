@@ -33,11 +33,17 @@ button, input {
     position: relative;
 }
 
+header {
+    text-align: center;
+    font-size: 30px;
+    padding-bottom: 35px;
+}
+
 #main {
     overflow: hidden;
     position: relative;
 }
-#footer {
+footer {
 }
 
 
@@ -51,7 +57,7 @@ aside {
     float: left;
     width: 100px;
 }
-aside ul {
+nav ul {
     list-style-type: none;
     margin: 0;
     padding: 0;
@@ -72,11 +78,27 @@ aside ul {
 
 .keyring {
     border: 1px solid #ddd;
-    padding: 4px 0;
+    padding: 4px 2px;
     border-radius: 5px;
     margin-bottom: 8px;
 }
-.keyring a {
+.keyring a.unlock {
     background: url(../img/expand.png) left no-repeat;
     padding-left: 16px;
+    display: block;
+}
+.keyring .entries {
+    border-top: 1px solid #ddd;
+    margin-top: 5px;
+    padding: 10px 20px 10px;
+}
+
+.keyring .entry {
+    margin-top: 5px;
+}
+.keyring .entry .secret {
+    float: right;
+}
+.keyring .entry .secret a {
+    border-bottom: 1px dotted #222;
 }
