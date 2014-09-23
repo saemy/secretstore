@@ -13,88 +13,144 @@ function evalError(jqxhr) {
     }
 }
 
-function toggleLock(keyringId) {
-    var keyring = $("#keyring-" + keyringId);
-    if (keyring.hasClass('locked')) {
-        unlockKeyring(keyringId);
-    } else {
-        lockKeyring(keyringId);
-    }
-}
-
-function lockKeyring(keyringId) {
-    var url = lockUrl.replace("{keyringId}", keyringId);
-    $.get(url)
-    .fail(function(jqxhr, textStatus, error) {
-        alert(evalError(jqxhr));
-    })
-    .done(function(data) {
-        var keyring = $("#keyring-" + keyringId);
-        keyring
-            .removeClass('unlocked')
-            .addClass('locked')
-            .children(".entries").remove();
-    });
-}
-
-function unlockKeyring(keyringId) {
-    var doUnlock = function(password) {
-        var url = unlockUrl.replace("{keyringId}", keyringId);
-        $.post(url, {
-            password: password,
-        })
-        .fail(function(jqxhr, textStatus, error) {
-            var text = jqxhr.status == 403
-                ? jqxhr.responseText
-                : evalError(jqxhr);
-            unlockDialog.find("#unlock-error").html(text);
-        })
-        .done(function(data) {
-            var keyring = $("#keyring-" + keyringId);
-            keyring
-                .removeClass('locked')
-                .addClass('unlocked')
-                .append(data);
-
-            unlockDialog.dialog("close");
-        });
+(function ($) {
+    $.Keyring = function(id) {
+        this.id = id;
+        this.element = $("#keyring-" + id);
+        this.data = this.element.children(".elements-wrapper").html();
     };
+
+    $.Keyring.prototype = {
+
+        // Lock/unlock
+            
+        toggleLock: function() {
+            if (this.element.hasClass('locked')) {
+                this.unlock();
+            } else {
+                this.lock();
+            }
+        },
+        
+        unlock: function() {
+            var that = this;
+            
+            var doUnlock = function(password) {
+                var url = unlockUrl.replace("{keyringId}", that.id);
+                $.post(url, {
+                    password: password,
+                })
+                .fail(function(jqxhr, textStatus, error) {
+                    var text = jqxhr.status == 403
+                        ? jqxhr.responseText
+                        : evalError(jqxhr);
+                    unlockDialog.find("#unlock-error").html(text);
+                })
+                .done(function(data) {
+                    that.data = data;
+                    that.element
+                        .removeClass('locked')
+                        .addClass('unlocked');
+                    that.open();
+
+                    unlockDialog.dialog("close");
+                });
+            };
     
-    unlockDialog.on("dialogclose", function() {
-        unlockDialog.find("form")[0].reset();
-            unlockDialog.find("#unlock-error").empty();
-    });
-    unlockDialog.find("form").on("submit", function() {
-        doUnlock($("#unlock-password").val());
-        return false;
-    });
-    unlockDialog.dialog("open");
+            unlockDialog.find("form").on("submit", function() {
+                doUnlock($("#unlock-password").val());
+                return false;
+            });
+            unlockDialog.dialog("open");
+        },
+        
+        lock: function() {
+            var that = this;
+            
+            var url = lockUrl.replace("{keyringId}", that.id);
+            $.get(url)
+            .fail(function(jqxhr, textStatus, error) {
+                alert(evalError(jqxhr));
+            })
+            .done(function(data) {
+                that.close();
+                that.element
+                    .removeClass('unlocked')
+                    .addClass('locked');
+            });
+        },
+        
+        
+        // Open/close
+        
+        toggleOpen: function() {
+            if (this.element.hasClass('locked')) {
+                // Unlock it first.
+                this.unlock();
+            } else if (this.element.hasClass('closed')) {
+                this.open();
+            } else {
+                this.close();
+            }
+        },
+        
+        open: function() {
+            this.element
+                .removeClass('closed')
+                .addClass('open')
+                .children('.elements-wrapper').html(this.data);
+        },
+        
+        close: function() {
+            this.element
+                .removeClass('open')
+                .addClass('closed')
+                .children(".elements-wrapper").empty();
+        },
+        
+        
+        // Secrets
+        
+        showSecret: function(entryId) {
+            var that = this;
+            
+            var url = secretUrl
+                .replace("{keyringId}", that.id)
+                .replace("{entryId}", entryId);
+            
+            $.get(url)
+            .fail(function(jqxhr, textStatus, error) {
+                alert(evalError(jqxhr));
+            })
+            .done(function(data) {
+                var secret = $("#entry-" + that.id + "-" + entryId + " .secret span");
+                secret.html(data);
+        
+                $("#entry-" + that.id + "-" + entryId + " .secret a.hide").show();
+                setTimeout(function(){ that.hideSecret(entryId); }, 60000);
+            });
+        
+            $("#entry-" + that.id + "-" + entryId + " .secret a.show").hide();
+        },
+        
+        hideSecret: function(entryId) {
+            var secret = $("#entry-" + this.id + "-" + entryId + " .secret span");
+            secret.empty();
+            
+            $("#entry-" + this.id + "-" + entryId + " .secret a.hide").hide();
+            $("#entry-" + this.id + "-" + entryId + " .secret a.show").show();
+        }
+    };
+}(jQuery));
+
+function keyring(id) {
+    return $("#keyring-" + id).data("keyring");
 }
 
-function showSecret(keyringId, entryId) {
-    var url = secretUrl
-        .replace("{keyringId}", keyringId)
-        .replace("{entryId}", entryId);
-    
-    $.get(url)
-    .fail(function(jqxhr, textStatus, error) {
-        alert(evalError(jqxhr));
-    })
-    .done(function(data) {
-        var secret = $("#entry-" + keyringId + "-" + entryId + " .secret span");
-        secret.html(data);
-
-        $("#entry-" + keyringId + "-" + entryId + " .secret a.hide").show();
-        setTimeout(function(){ hideSecret(keyringId, entryId); }, 60000);
+// Initializes the keyrings.
+$(function() {
+    $(".keyring").each(function() {
+        $(this).data("keyring",
+                     new $.Keyring($(this).attr("id").replace("keyring-", "")));
     });
-
-    $("#entry-" + keyringId + "-" + entryId + " .secret a.show").hide();
-}
-
-function hideSecret(keyringId, entryId) {
-    var secret = $("#entry-" + keyringId + "-" + entryId + " .secret span");
-    secret.empty();
-    
-    $("#entry-" + keyringId + "-" + entryId + " .secret a.hide").hide();
-    $("#entry-" + keyringId + "-" + entryId + " .secret a.show").show();
-}
+});

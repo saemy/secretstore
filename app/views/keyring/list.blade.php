@@ -8,15 +8,20 @@
     <h1>{{ Lang::get('secretstore.your_keyrings') }}</h1>
     <div id="keyrings">
         @foreach ($keyrings as $keyring)
-            <?php $class = $keyring->isUnlocked() ? "unlocked" : "locked";?>
-            <div class="keyring {{ $class }}" id="keyring-{{{ $keyring->getId() }}}">
-                <a href="#" onclick="toggleLock('{{{ $keyring->getId() }}}'); return false;" class="unlock">
+            <?php $kid = $keyring->getId(); ?>
+            <?php $class = $keyring->isUnlocked() ? "unlocked open" : "locked";?>
+            <?php $lock = sprintf("keyring('%s').toggleLock(); return false;", $kid); ?>
+            <?php $open = sprintf("keyring('%s').toggleOpen(); return false;", $kid); ?>
+            <div class="keyring {{ $class }}" id="keyring-{{{ $kid }}}">
+                <a class="lock-status" href="#" onclick="{{ $lock }}"></a>
+                <a href="#" onclick="{{ $open }}" class="open">
                     {{ $keyring->getDisplayName() }}
-                    <span class="lock-status"></span>
                 </a>
-                @if ($keyring->isUnlocked())
-                    @include('keyring.show', compact('keyring'))
-                @endif
+                <div class="elements-wrapper">
+                    @if ($keyring->isUnlocked())
+                        @include('keyring.show', compact('keyring'))
+                    @endif
+                </div>
             </div>
         @endforeach
     </div>
@@ -50,7 +55,11 @@
                 buttons: [{
                     text: "{{ Lang::get('secretstore.keyring_unlock') }}",
                     click: function() { $("#unlock-dialog form").submit(); },
-                }]
+                }],
+                close: function() {
+                    unlockDialog.find("form")[0].reset();
+                    unlockDialog.find("#unlock-error").empty();
+                }
             });
         });
     </script>

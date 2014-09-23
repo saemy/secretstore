@@ -84,27 +84,29 @@ nav ul {
 
 .keyring {
     border: 1px solid #ddd;
-    padding: 4px 2px;
     border-radius: 5px;
     margin-bottom: 8px;
+    padding: 4px 2px;
+    position: relative;
 }
-.keyring .lock-status {
+.keyring a.lock-status {
     display: inline-block;
     float: right;
     width: 20px;
     height: 20px;
     margin-right: 3px;
 }
-.keyring.unlocked .lock-status {
+.keyring.unlocked a.lock-status {
     background-image: url(../img/lock_open.png);
 }
-.keyring.locked .lock-status {
+.keyring.locked a.lock-status {
     background-image: url(../img/lock_closed.png);
 }
-.keyring a.unlock {
+.keyring a.open {
     background: url(../img/expand.png) left no-repeat;
-    padding-left: 16px;
     display: block;
+    margin-right: 25px;
+    padding-left: 16px;
 }
 .keyring .entries {
     border-top: 1px solid #ddd;

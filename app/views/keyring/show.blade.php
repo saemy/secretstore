@@ -1,7 +1,7 @@
 <div class="entries">
     @foreach ($keyring->getEntries() as $entry)
-        <?php $show = sprintf('showSecret("%s", "%s"); return false;', $keyring->getId(), $entry->getId()); ?>
-        <?php $hide = sprintf('hideSecret("%s", "%s"); return false;', $keyring->getId(), $entry->getId()); ?>
+        <?php $show = sprintf('keyring("%s").showSecret("%s"); return false;', $keyring->getId(), $entry->getId()); ?>
+        <?php $hide = sprintf('keyring("%s").hideSecret("%s"); return false;', $keyring->getId(), $entry->getId()); ?>
         <div class="entry" id="entry-{{{ $keyring->getId() }}}-{{{ $entry->getId() }}}">
             {{{ $entry->getDisplayName() }}}
             <div class="secret">
