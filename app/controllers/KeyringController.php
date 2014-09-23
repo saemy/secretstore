@@ -23,6 +23,16 @@ class KeyringController extends \BaseController {
     }
 
     /**
+     * Locks the given keyring.
+     *
+     * @param string $id
+     */
+    public function getLock($id) {
+        $keyring = $this->keyringRepo->find($id);
+        $keyring->lock();
+    }
+
+    /**
      * Unlocks the given keyring and returns it.
      *
      * @param string $id

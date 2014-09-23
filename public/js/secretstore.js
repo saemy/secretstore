@@ -13,6 +13,30 @@ function evalError(jqxhr) {
     }
 }
 
+function toggleLock(keyringId) {
+    var keyring = $("#keyring-" + keyringId);
+    if (keyring.hasClass('locked')) {
+        unlockKeyring(keyringId);
+    } else {
+        lockKeyring(keyringId);
+    }
+}
+
+function lockKeyring(keyringId) {
+    var url = lockUrl.replace("{keyringId}", keyringId);
+    $.get(url)
+    .fail(function(jqxhr, textStatus, error) {
+        alert(evalError(jqxhr));
+    })
+    .done(function(data) {
+        var keyring = $("#keyring-" + keyringId);
+        keyring
+            .removeClass('unlocked')
+            .addClass('locked')
+            .children(".entries").remove();
+    });
+}
+
 function unlockKeyring(keyringId) {
     var doUnlock = function(password) {
         var url = unlockUrl.replace("{keyringId}", keyringId);
@@ -32,8 +56,6 @@ function unlockKeyring(keyringId) {
                 .addClass('unlocked')
                 .append(data);
 
-            keyring.children("a.unlock")[0].onclick = null;
-            
             unlockDialog.dialog("close");
         });
     };

@@ -8,10 +8,9 @@
     <h1>{{ Lang::get('secretstore.your_keyrings') }}</h1>
     <div id="keyrings">
         @foreach ($keyrings as $keyring)
-            <?php $onclick = !$keyring->isUnlocked() ? "unlockKeyring('".$keyring->getId()."'); return false" : "";?>
             <?php $class = $keyring->isUnlocked() ? "unlocked" : "locked";?>
             <div class="keyring {{ $class }}" id="keyring-{{{ $keyring->getId() }}}">
-                <a href="#" onclick="{{{ $onclick }}}" class="unlock">
+                <a href="#" onclick="toggleLock('{{{ $keyring->getId() }}}'); return false;" class="unlock">
                     {{ $keyring->getDisplayName() }}
                     <span class="lock-status"></span>
                 </a>
@@ -37,6 +36,7 @@
     </div>
 
     <script>
+        var lockUrl = "{{{ url('keyring/{keyringId}/lock') }}}";
         var unlockUrl = "{{{ url('keyring/{keyringId}/unlock') }}}";
         var secretUrl = "{{{ url('keyring/{keyringId}/secret/{entryId}') }}}";
         var unlockDialog;

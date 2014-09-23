@@ -95,6 +95,19 @@ abstract class Keyring {
     }
 
     /**
+     * Locks the keyring.
+     */
+    public function lock() {
+        if ($this->isUnlocked()) {
+            $key = self::getSessionKey($this->id);
+            Session::forget($key);
+
+            // TODO really forget about the private data.
+            $this->unlocked = false;
+        }
+    }
+
+    /**
      * Unlocks the keyring.
      *
      * @param string password The password to unlock the keyring.
