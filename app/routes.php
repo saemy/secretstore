@@ -23,10 +23,13 @@ Route::group(array('before' => 'auth'), function() {
     Route::get('keyring/{id}/show', 'KeyringController@getShow');
     Route::get('keyring/{id}/secret/{entryId}', 'KeyringController@getSecret');
     Route::controller('keyring', 'KeyringController');
+
+    Route::get('logout', 'LoginController@getLogout');
 });
 
 /**
  * Guest routes
  */
-Route::get('logout', 'LoginController@getLogout');
-Route::controller('login', 'LoginController');
+Route::group(array('before' => 'guest'), function() {
+    Route::controller('login', 'LoginController');
+});
