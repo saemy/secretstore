@@ -44,6 +44,21 @@ Route::filter('auth', function() {
     }
 });
 
+/*
+|--------------------------------------------------------------------------
+| Ajax Filter
+|--------------------------------------------------------------------------
+|
+| The "ajax" filter checks that the current request is done by ajax or the user
+| gets redirected to the index page otherwise.
+|
+*/
+
+Route::filter('ajax', function() {
+    if (!Request::ajax()) {
+        return Redirect::to('/');
+    }
+});
 
 /*
 |--------------------------------------------------------------------------

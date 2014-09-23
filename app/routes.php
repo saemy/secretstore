@@ -12,6 +12,16 @@
 */
 
 /**
+ * Ajax routes.
+ */
+Route::group(array('before' => 'auth|ajax'), function() {
+    Route::get('keyring/{id}/lock', 'KeyringController@getLock');
+    Route::post('keyring/{id}/unlock', 'KeyringController@postUnlock');
+    Route::get('keyring/{id}/show', 'KeyringController@getShow');
+    Route::get('keyring/{id}/secret/{entryId}', 'KeyringController@getSecret');
+});
+
+/**
  * Authorized routes.
  */
 Route::group(array('before' => 'auth'), function() {
@@ -19,12 +29,8 @@ Route::group(array('before' => 'auth'), function() {
         return Redirect::to('keyring');
     });
 
-    Route::get('keyring/{id}/lock', 'KeyringController@getLock');
-    Route::post('keyring/{id}/unlock', 'KeyringController@postUnlock');
-    Route::get('keyring/{id}/show', 'KeyringController@getShow');
-    Route::get('keyring/{id}/secret/{entryId}', 'KeyringController@getSecret');
-    Route::controller('keyring', 'KeyringController');
-
+    Route::controller('keyring', 'KeyringController',
+                      array('only' => array('index')));
     Route::get('logout', 'LoginController@getLogout');
 });
 
