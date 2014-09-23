@@ -9,12 +9,20 @@
 
     <script src="//ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
     <script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.11.1/jquery-ui.min.js"></script>
-    <script type="text/javascript" src="{{ asset('/js/secretstore.js') }}"></script>
 
     <link rel="stylesheet" href="//ajax.googleapis.com/ajax/libs/jqueryui/1.11.1/themes/smoothness/jquery-ui.css" />
-    <link rel="stylesheet" type="text/css" href="{{ asset('/css/style.css') }}">
+    <link rel="stylesheet" href="{{ asset('/css/style.css') }}" />
 </head>
 <body>
+    <script>
+        if (!window.jQuery) {
+            document.write('<script src="{{ asset('/js/jquery.min.js') }}"><\/script>');
+            document.write('<script src="{{ asset('/js/jquery-ui.min.js') }}"><\/script>');
+            document.write('<link rel="stylesheet" href="{{ asset('/css/jquery-ui.css') }}" \/>');
+        }
+    </script>
+    <script src="{{ asset('/js/secretstore.js') }}"></script>
+
     <div id="container">
         <header>{{ Lang::get('secretstore.secretstore') }}</header>
 
@@ -32,7 +40,5 @@
     </div>
 
     @yield('footer')
-
-    <script>window.jQuery || document.write('<script src="{{ asset('/js/jquery.min.js') }} "><\/script>')</script>
 </body>
 </html>
