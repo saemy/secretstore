@@ -32,8 +32,8 @@ class SecretstoreServiceProvider extends ServiceProvider {
      * @return void
      */
     public function register() {
-    	$this->app->singleton(
-    	    'Secretstore\Repositories\KeyringRepositoryInterface',
+        $this->app->singleton(
+            'Secretstore\Repositories\KeyringRepositoryInterface',
             'Secretstore\Repositories\FileKeyringRepository');
     }
 

@@ -26,7 +26,7 @@ class LoginController extends BaseController {
         $password = Input::get('password');
 
         if (Auth::attempt(array('username' => $username, 'password' => $password))) {
-        	return Redirect::intended('');
+            return Redirect::intended('');
         }
 
         return Redirect::back()

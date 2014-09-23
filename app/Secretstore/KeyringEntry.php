@@ -20,50 +20,50 @@ class KeyringEntry {
      */
     private $secret;
 
-	public function __construct($id) {
+    public function __construct($id) {
         $this->id = $id;
-	}
+    }
 
-	/**
-	 * Returns the id.
-	 *
-	 * @return string
-	 */
-	public function getId() {
+    /**
+     * Returns the id.
+     *
+     * @return string
+     */
+    public function getId() {
         return $this->id;
-	}
+    }
 
-	/**
-	 * Returns the display name.
-	 *
-	 * @return string
-	 */
-	public function getDisplayName() {
-	    return $this->displayName;
-	}
+    /**
+     * Returns the display name.
+     *
+     * @return string
+     */
+    public function getDisplayName() {
+        return $this->displayName;
+    }
 
-	/**
-	 * Returns the secret.
-	 *
-	 * @return string
-	 */
-	public function getSecret() {
-	    return $this->secret;
-	}
+    /**
+     * Returns the secret.
+     *
+     * @return string
+     */
+    public function getSecret() {
+        return $this->secret;
+    }
 
-	/**
-	 * Sets the display name.
-	 * @param string $displayName
-	 */
-	public function setDisplayName($displayName) {
+    /**
+     * Sets the display name.
+     * @param string $displayName
+     */
+    public function setDisplayName($displayName) {
         $this->displayName = $displayName;
-	}
+    }
 
-	/**
-	 * Sets the secret.
-	 * @param string $secret
-	 */
-	public function setSecret($secret) {
+    /**
+     * Sets the secret.
+     * @param string $secret
+     */
+    public function setSecret($secret) {
         $this->secret = $secret;
-	}
+    }
 }

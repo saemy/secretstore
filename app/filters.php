@@ -20,7 +20,7 @@ App::before(function($request) {
 
 
 App::after(function($request, $response) {
-	//
+    //
 });
 
 /*
@@ -35,13 +35,13 @@ App::after(function($request, $response) {
 */
 
 Route::filter('auth', function() {
-	if (Auth::guest()) {
-		if (Request::ajax()) {
-			return Response::make('Unauthorized', 401);
-		} else {
-			return Redirect::guest('login');
-		}
-	}
+    if (Auth::guest()) {
+        if (Request::ajax()) {
+            return Response::make('Unauthorized', 401);
+        } else {
+            return Redirect::guest('login');
+        }
+    }
 });
 
 
@@ -57,7 +57,7 @@ Route::filter('auth', function() {
 */
 
 Route::filter('guest', function() {
-	if (Auth::check()) return Redirect::to('/');
+    if (Auth::check()) return Redirect::to('/');
 });
 
 /*
@@ -76,7 +76,7 @@ Route::filter('csrf', function() {
         ? Request::header('X-CSRF-Token')
         : Input::get('_token');
 
-	if (Session::token() != $token) {
-		throw new Illuminate\Session\TokenMismatchException;
-	}
+    if (Session::token() != $token) {
+        throw new Illuminate\Session\TokenMismatchException;
+    }
 });

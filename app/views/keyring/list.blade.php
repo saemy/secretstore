@@ -6,21 +6,21 @@
 
 @section('content')
     <h1>{{ Lang::get('secretstore.your_keyrings') }}</h1>
-	<div id="keyrings">
-		@foreach ($keyrings as $keyring)
-			<?php $onclick = !$keyring->isUnlocked() ? "unlockKeyring('".$keyring->getId()."'); return false" : "";?>
-			<?php $class = $keyring->isUnlocked() ? "unlocked" : "locked";?>
-			<div class="keyring {{ $class }}" id="keyring-{{{ $keyring->getId() }}}">
-			    <a href="#" onclick="{{{ $onclick }}}" class="unlock">
-			        {{ $keyring->getDisplayName() }}
+    <div id="keyrings">
+        @foreach ($keyrings as $keyring)
+            <?php $onclick = !$keyring->isUnlocked() ? "unlockKeyring('".$keyring->getId()."'); return false" : "";?>
+            <?php $class = $keyring->isUnlocked() ? "unlocked" : "locked";?>
+            <div class="keyring {{ $class }}" id="keyring-{{{ $keyring->getId() }}}">
+                <a href="#" onclick="{{{ $onclick }}}" class="unlock">
+                    {{ $keyring->getDisplayName() }}
                     <span class="lock-status"></span>
-			    </a>
-			    @if ($keyring->isUnlocked())
-			        @include('keyring.show', compact('keyring'))
-			    @endif
-			</div>
-		@endforeach
-	</div>
+                </a>
+                @if ($keyring->isUnlocked())
+                    @include('keyring.show', compact('keyring'))
+                @endif
+            </div>
+        @endforeach
+    </div>
 
     <div id="unlock-dialog">
         <span id="unlock-error"></span>
@@ -36,12 +36,12 @@
         </form>
     </div>
 
-	<script>
+    <script>
         var unlockUrl = "{{{ url('keyring/{keyringId}/unlock') }}}";
         var secretUrl = "{{{ url('keyring/{keyringId}/secret/{entryId}') }}}";
         var unlockDialog;
 
-	    $(function() {
+        $(function() {
             unlockDialog = $("#unlock-dialog").dialog({
                 autoOpen: false,
                 dialogClass: "no-close",
@@ -52,6 +52,6 @@
                     click: function() { $("#unlock-dialog form").submit(); },
                 }]
             });
-	    });
-	</script>
+        });
+    </script>
 @stop
