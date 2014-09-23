@@ -1,6 +1,7 @@
 <?php namespace Secretstore\Keyrings\Gnome;
 
-use \Exception;
+use Exception;
+use Symfony\Component\Security\Core\Exception\BadCredentialsException;
 
 class GnomeKeyring extends \Secretstore\Keyring {
 
@@ -18,14 +19,14 @@ class GnomeKeyring extends \Secretstore\Keyring {
 
     protected function loadPublic(&$displayName) {
         $data = file_get_contents($this->getFilename());
-        $data = unpack("C*", $data);
+        $data = unpack('C*', $data);
         $buffer = new Buffer($data);
 
         // Checks the header of the file.
         $KEYRING_FILE_HEADER = "GnomeKeyring\n\r\0\n";
         $header = $buffer->getBytesStr(strlen($KEYRING_FILE_HEADER));
         if (strcmp($header, $KEYRING_FILE_HEADER) != 0) {
-            throw new Exception("Invalid header.");
+            throw new Exception('Invalid header.');
         }
 
         $major = $buffer->getByte();
@@ -34,7 +35,7 @@ class GnomeKeyring extends \Secretstore\Keyring {
         $hash = $buffer->getByte();
 
         if ($major != 0 || $minor != 0 || $crypto != 0 || $hash != 0) {
-            throw new Exception("Invalid version.");
+            throw new Exception('Invalid version.');
         }
 
         $displayName = $buffer->getString();
@@ -49,7 +50,7 @@ class GnomeKeyring extends \Secretstore\Keyring {
         for ($i = 0; $i < 4; ++$i) {
             $reserved = $buffer->getUint32();
             if ($reserved != 0) {
-                throw new Exception("Invalid reserved bytes.");
+                throw new Exception('Invalid reserved bytes.');
             }
         }
 
@@ -64,7 +65,7 @@ class GnomeKeyring extends \Secretstore\Keyring {
         /* Make sure the crypted part is the right size */
         $cryptoSize = $buffer->getUint32();
         if ($cryptoSize % 16 != 0) {
-            throw new Exception("Invalid crypto size.");
+            throw new Exception('Invalid crypto size.');
         }
 
         $this->privateData = $buffer->getBytesStr($cryptoSize);
@@ -77,7 +78,7 @@ class GnomeKeyring extends \Secretstore\Keyring {
                                                 $this->privateData);
 
         $this->verifyDecryptedData($privateData);
-        $buffer = new Buffer(unpack("C*", $privateData));
+        $buffer = new Buffer(unpack('C*', $privateData));
         $buffer->setOffset(16); /* Skip hash */
 
         $this->readFullItemInfo($buffer, $this->items);
@@ -136,7 +137,7 @@ class GnomeKeyring extends \Secretstore\Keyring {
                     break;
 
                 default:
-                    throw new Exception("Unknown attribute type.");
+                    throw new Exception('Unknown attribute type.');
             }
 
             $attributes[$name] = $val;
@@ -181,10 +182,10 @@ class GnomeKeyring extends \Secretstore\Keyring {
 
     private static function symkeyGenerateSimple($keySize, $ivSize, $password,
                                                  $salt, $hashIterations) {
-        $hashFunction = "sha256";
+        $hashFunction = 'sha256';
 
-        $key = "";
-        $iv = "";
+        $key = '';
+        $iv = '';
 
         for ($pass = 0; strlen($key) < $keySize || strlen($iv) < $ivSize;
              ++$pass) {
@@ -223,10 +224,10 @@ class GnomeKeyring extends \Secretstore\Keyring {
 
     private static function verifyDecryptedData($data) {
         $expectedHash = substr($data, 0, 16);
-        $realHash = hash("md5", substr($data, 16), true);
+        $realHash = hash('md5', substr($data, 16), true);
 
         if (strcmp($expectedHash, $realHash) != 0) {
-            throw new Exception("Hash comparision failed.");
+            throw new BadCredentialsException();
         }
     }
 

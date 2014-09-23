@@ -1,6 +1,6 @@
 <?php namespace Secretstore\Keyrings\Gnome;
 
-use \Exception;
+use Exception;
 
 class Buffer {
     private $buffer;

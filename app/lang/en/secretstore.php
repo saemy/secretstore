@@ -14,4 +14,8 @@ return array(
 
     // Keyrings
     'your_keyrings' => 'Your keyrings',
+    'keyring_password' => 'Password',
+    'keyring_unlock' => 'Unlock keyring',
+    'keyring_unlock_text' => 'Please enter the password to unlock this keyring.',
+    'keyring_invalid_password' => 'Invalid password',
 );

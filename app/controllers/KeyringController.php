@@ -2,6 +2,7 @@
 
 use Secretstore\Keyring;
 use Secretstore\Repositories\KeyringRepositoryInterface;
+use Symfony\Component\Security\Core\Exception\BadCredentialsException;
 
 class KeyringController extends \BaseController {
 
@@ -28,14 +29,16 @@ class KeyringController extends \BaseController {
 	 * @return Response
 	 */
 	public function postUnlock($id) {
-        $keyring = $this->keyringRepo->find($id);
+	    try {
+            $keyring = $this->keyringRepo->find($id);
 
-        $password = Input::get('password');
-        $keyring->unlock($password);
-        // TODO catch exception on unlock and return unauthorized error code if
-        //      invalid password.
-
-        return $this->show($id);
+            $password = Input::get('password');
+            $keyring->unlock($password);
+            return $this->getShow($id);
+	    } catch (BadCredentialsException $exception) {
+            return Response::make(
+                    Lang::get('secretstore.keyring_invalid_password'), 403);
+	    }
 	}
 
 	/**
@@ -44,9 +47,10 @@ class KeyringController extends \BaseController {
 	 * @param  string  $id
 	 * @return Response
 	 */
-	public function show($id) {
-		$keyring = $this->keyringRepo->find($id);
-		return View::make('keyring.show', compact('keyring'));
+	public function getShow($id) {
+        $keyring = $this->keyringRepo->find($id);
+        $keyring->ensureUnlocked();
+        return View::make('keyring.show', compact('keyring'));
 	}
 
 	/**

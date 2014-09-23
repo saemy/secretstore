@@ -1,8 +1,11 @@
 <?php namespace Secretstore;
 
-use \Auth;
-use \Crypt;
-use \Session;
+use Auth;
+use Crypt;
+use Exception;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Session;
+use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 
 abstract class Keyring {
 
@@ -98,16 +101,23 @@ abstract class Keyring {
 	 */
 	public function unlock($password) {
         if (!$this->isUnlocked()) {
-            try {
-                $this->loadPrivate($password, $this->entries);
-                $this->unlocked = true;
+            $this->loadPrivate($password, $this->entries);
+            $this->unlocked = true;
 
-                $key = self::getSessionKey($this->id);
-                Session::put($key, Crypt::encrypt($password));
-            } catch (Excetption $e) {
-                App::abort(403, 'Unauthorized action.');
-            }
+            $key = self::getSessionKey($this->id);
+            Session::put($key, Crypt::encrypt($password));
         }
+	}
+
+	/**
+	 * Throws an exception if the keyring is not unlocked.
+	 *
+	 * @throws AccessDeniedException
+	 */
+	public function ensureUnlocked() {
+	    if (!$this->isUnlocked()) {
+	        throw new AccessDeniedException();
+	    }
 	}
 
 	/**
@@ -118,7 +128,8 @@ abstract class Keyring {
 	 */
 	public function getEntries() {
 	    if (!$this->isUnlocked()) {
-	        throw new Exception('Access to private data of unlocked keyring.');
+	        throw new AccessDeniedException(
+	                'Access to private data of unlocked keyring.');
 	    }
 
 	    return $this->entries;
@@ -133,7 +144,8 @@ abstract class Keyring {
 	 */
 	public function findEntry($entryId) {
 	    if (!$this->isUnlocked()) {
-	        throw new Exception('Access to private data of unlocked keyring.');
+	        throw new AccessDeniedException(
+	                'Access to private data of unlocked keyring.');
 	    }
 
 	    foreach ($this->entries as $entry) {
@@ -142,7 +154,8 @@ abstract class Keyring {
 	        }
 	    }
 
-	    throw new Exception(sprintf('Entry with id %s not found.', $entryId));
+	    throw new ModelNotFoundException(
+	            sprintf('Entry with id %s not found.', $entryId));
 	}
 
 	/**

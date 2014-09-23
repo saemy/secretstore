@@ -20,6 +20,7 @@ Route::group(array('before' => 'auth'), function() {
     });
 
     Route::post('keyring/{id}/unlock', 'KeyringController@postUnlock');
+    Route::get('keyring/{id}/show', 'KeyringController@getShow');
     Route::get('keyring/{id}/secret/{entryId}', 'KeyringController@getSecret');
     Route::controller('keyring', 'KeyringController');
 });

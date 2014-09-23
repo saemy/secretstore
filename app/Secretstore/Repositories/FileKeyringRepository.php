@@ -4,6 +4,7 @@ use Auth;
 use File;
 use Illuminate\Auth\UserInterface;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
+use InvalidArgumentException;
 use Secretstore\Keyrings\Gnome\GnomeKeyring;
 use Validator;
 

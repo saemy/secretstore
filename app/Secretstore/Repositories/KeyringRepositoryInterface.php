@@ -13,8 +13,6 @@ interface KeyringRepositoryInterface {
 	 *
 	 * @param string $name
 	 * @return Keyring
-	 *
-	 * @throws \Illuminate\Database\Eloquent\ModelNotFoundException
 	*/
 	public function find($id);
 
