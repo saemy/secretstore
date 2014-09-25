@@ -1,0 +1,52 @@
+.keyring {
+    border: 1px solid $grey_light;
+    border-radius: 5px;
+    margin-bottom: 8px;
+    padding: 4px 2px;
+    position: relative;
+
+    a.lock-status {
+        display: inline-block;
+        float: right;
+        width: 20px;
+        height: 20px;
+        margin-right: 3px;
+    }
+    &.unlocked a.lock-status {
+        background-image: url(../img/lock_open.png);
+    }
+    &.locked a.lock-status {
+        background-image: url(../img/lock_closed.png);
+    }
+
+    a.open {
+        background: url(../img/expand.png) left no-repeat;
+        display: block;
+        margin-right: 25px;
+        padding-left: 16px;
+    }
+
+    .entries {
+        border-top: 1px solid $grey_light;
+        margin-top: 5px;
+        padding: 10px 20px 10px;
+
+        .entry {
+            margin-top: 5px;
+        }
+        .entry .secret {
+            float: right;
+
+            a {
+                border-bottom: 1px dotted $grey_dark;
+            }
+        }
+    }
+}
+
+#unlock-dialog {
+    display: none;
+}
+.ui-dialog.no-close .ui-dialog-titlebar {
+    display: none;
+}

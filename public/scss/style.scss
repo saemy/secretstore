@@ -1,0 +1,84 @@
+@CHARSET "UTF-8";
+@import "url(//fonts.googleapis.com/css?family=Ubuntu:400,700)";
+
+$grey_dark: #222;
+$grey_medium: #999;
+$grey_light: #ddd;
+
+body {
+    margin: 0;
+    font-family: 'Ubuntu', sans-serif;
+    text-align: left;
+    color: $grey_dark;
+}
+
+a, a:visited {
+    color: $grey_dark;
+    text-decoration:none;
+}
+
+h1 {
+    font-size: 120%;
+    margin: 4px 0 12px;
+}
+
+button, input {
+    border: 1px solid $grey_medium;
+    padding: 2px 5px;
+}
+
+fieldset {
+    border: none;
+    margin: 0;
+    padding: 0;
+}
+
+/********************************** Positions *********************************/
+
+#container {
+    height: 100%;
+    margin: 0 auto;
+    padding: 50px 0;
+    max-width: 1500px;
+    position: relative;
+}
+
+header {
+    text-align: center;
+    font-size: 30px;
+    padding-bottom: 35px;
+}
+
+#main {
+    overflow: hidden;
+    position: relative;
+}
+footer {
+}
+
+
+aside, #content, .ui-dialog {
+    border: 1px solid $grey_medium;
+    border-radius: 10px;
+    padding: 15px 20px;
+}
+
+aside {
+    float: left;
+    width: 100px;
+}
+nav ul {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+}
+
+#content {
+    width: auto;
+    margin-left: 160px;
+}
+
+@import "login";
+@import "keyring";
+
+@import "jquery-ui-overwrite";

@@ -1,9 +1,11 @@
 /app/config/local/
 /app/database/local.sqlite
 /app/storage/
-
 /bootstrap/compiled.php
+/public/css/style.css
+/public/css/_*.css
 /vendor
+
 composer.phar
 .env.*.php
 .env.php

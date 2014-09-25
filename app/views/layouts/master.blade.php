@@ -11,7 +11,6 @@
     <script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.11.1/jquery-ui.min.js"></script>
 
     <link rel="stylesheet" href="//ajax.googleapis.com/ajax/libs/jqueryui/1.11.1/themes/smoothness/jquery-ui.css" />
-    <link rel="stylesheet" href="{{ asset('/css/style.css') }}" />
 </head>
 <body>
     <script>
@@ -22,6 +21,7 @@
         }
     </script>
     <script src="{{ asset('/js/secretstore.js') }}"></script>
+    <link rel="stylesheet" href="{{ asset('/css/style.css') }}" />
 
     <div id="container">
         <header>{{ Lang::get('secretstore.secretstore') }}</header>
