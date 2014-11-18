@@ -45,6 +45,8 @@ class LoginController extends BaseController {
     const LOGIN_USERNAME = 'login_username';
     const TWOSTEP_CODE = '2step_code';
 
+    private $do2StepVerification;
+
     /**
      * Create a new login controller instance.
      *
@@ -52,6 +54,9 @@ class LoginController extends BaseController {
      */
     public function __construct() {
         parent::__construct();
+
+        $this->do2StepVerification =
+            Config::get('secretstore.use_2step_verification');
     }
 
     /**
@@ -67,24 +72,38 @@ class LoginController extends BaseController {
     public function postIndex() {
         $username = mb_strtolower(Input::get('username'));
         $password = Input::get('password');
-
-        // Verifies the login.
         $credentials = array('username' => $username, 'password' => $password);
-        if (!Auth::validate($credentials)) {
-            return Redirect::back()
-                ->withInput(Input::except('password'))
-                ->with('login_errors', true);
+
+        if ($this->do2StepVerification) {
+            // Verifies the login.
+            if (Auth::validate($credentials)) {
+                // Remembers the user s.t. he can be logged in after 2step
+                // verification.
+                Session::set(self::LOGIN_USERNAME, $username);
+                return Redirect::to('login/verify');
+            }
+        } else {
+            // Attempts the login.
+            if (Auth::attempt($credentials)) {
+                return Redirect::intended();
+            }
         }
 
-        // Remembers the user s.t. he can be logged in after 2step verification.
-        Session::set(self::LOGIN_USERNAME, $username);
-        return Redirect::to('login/verify');
+        // The login attempt failed.
+        return Redirect::back()
+            ->withInput(Input::except('password'))
+            ->with('login_errors', true);
     }
 
     /**
      * Gets the 2-factor verification page.
      */
     public function getVerify() {
+        // Checks if we even do 2-step verification.
+        if (!$this->do2StepVerification) {
+            return Redirect::to('login');
+        }
+
         // Ensures that the 2step code is not expired.
         if (!$this->ensure2StepCodeNotExpired($response, false)) {
             return $response;
@@ -108,6 +127,11 @@ class LoginController extends BaseController {
      * Handles the verification attempt.
      */
     public function postVerify() {
+        // Checks if we even do 2-step verification.
+        if (!$this->do2StepVerification) {
+            return Redirect::to('login');
+        }
+
         // Ensures that the 2step code exists and is not expired.
         if (!$this->ensure2StepCodeNotExpired($response, true)) {
             return $response;
