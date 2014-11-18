@@ -18,7 +18,7 @@ return array(
         'authentication.<br/>Please insert the code we sent to your phone.',
     'login_verify_incorrect' => 'The given code is wrong.',
     'login_do_verify' => 'Verify',
-    'secretstore.login_verify_timeout' => 'Your login timed out. Please start over.',
+    'login_verify_timeout' => 'Your login timed out. Please start over.',
 
     // Keyrings
     'your_keyrings' => 'Your keyrings',
