@@ -20,6 +20,8 @@ return array(
     'login_do_verify' => 'Verify',
     'login_verify_timeout' => 'Your login timed out. Please start over.',
 
+    '2step_sms_msg' => 'Your secretstore code is: %d',
+
     // Keyrings
     'your_keyrings' => 'Your keyrings',
     'keyring_password' => 'Password',

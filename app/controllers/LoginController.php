@@ -117,7 +117,12 @@ class LoginController extends BaseController {
         // Generates a new 2step verification code if needed.
         $login_username = Session::get(self::LOGIN_USERNAME);
         if (!Session::has(self::TWOSTEP_CODE)) {
-            $this->reset2StepCode($login_username);
+            try {
+                $this->reset2StepCode($login_username);
+            } catch (Exception $e) {
+                return Response::make(
+                        'Failed to send the verification code.', 500);
+            }
         }
 
         return View::make('login_verify');
@@ -202,13 +207,40 @@ class LoginController extends BaseController {
      */
     private function reset2StepCode($username) {
         // Re-creates a code.
-        $twostep_code = TwoStepAuthCode::create();
-        Session::set(self::TWOSTEP_CODE, serialize($twostep_code));
+        $code = TwoStepAuthCode::create();
 
         // Sends it to the user.
         $user = User::where('username', '=', Session::get(self::LOGIN_USERNAME))
             ->firstOrFail();
-        // TBD.
+        $this->sendCodeToUser($user, $code);
+
+        // Saves the code.
+        Session::set(self::TWOSTEP_CODE, serialize($code));
+    }
+
+    /**
+     * Sends the given code to given user. It is expected that the given user's
+     * phone number is set and is valid.
+     *
+     * @param User $user
+     * @param TwoStepAuthCode $code
+     */
+    private function sendCodeToUser($user, $code) {
+        // Loads the config params.
+        $smssender_cli = Config::get('secretstore.smssender_path');
+        $account = Config::get('secretstore.smssender_account');
+
+        // Assembles the command.
+        $command = sprintf('%s --account=%s --recipient=%s --message=%s',
+                escapeshellcmd($smssender_cli), escapeshellarg($account),
+                escapeshellarg($user->phone), escapeshellarg(
+                sprintf(Lang::get('secretstore.2step_sms_msg'), $code->code())));
+
+        // Sends the message.
+        exec($command, $output, $exit_code);
+        if ($exit_code != 0) {
+            throw new Exception('Could not send code to user.');
+        }
     }
 
     /**
