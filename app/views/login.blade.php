@@ -12,6 +12,11 @@
                 <p>{{ Lang::get('secretstore.login_incorrect') }}</p>
             </div>
         @endif
+        @if (Session::has('error_msg'))
+            <div class="alert alert-block alert-error">
+                <p>{{ Session::get('error_msg') }}</p>
+            </div>
+        @endif
 
         <form method="post" action="{{ url('login') }}">
             <fieldset>
