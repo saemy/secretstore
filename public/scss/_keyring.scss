@@ -28,6 +28,10 @@
         padding-left: 16px;
     }
 
+    &.closed .elements-wrapper {
+        display: none;
+    }
+
     .entries {
         border-top: 1px solid $grey_light;
         margin-top: 5px;

@@ -97,15 +97,13 @@ function evalError(jqxhr) {
         open: function() {
             this.element
                 .removeClass('closed')
-                .addClass('open')
-                .children('.elements-wrapper').html(this.data);
+                .addClass('open');
         },
         
         close: function() {
             this.element
                 .removeClass('open')
-                .addClass('closed')
-                .children(".elements-wrapper").empty();
+                .addClass('closed');
         },
         
         

@@ -9,7 +9,7 @@
     <div id="keyrings">
         @foreach ($keyrings as $keyring)
             <?php $kid = $keyring->getId(); ?>
-            <?php $class = $keyring->isUnlocked() ? "unlocked open" : "locked";?>
+            <?php $class = $keyring->isUnlocked() ? "unlocked closed" : "locked";?>
             <?php $lock = sprintf("keyring('%s').toggleLock(); return false;", $kid); ?>
             <?php $open = sprintf("keyring('%s').toggleOpen(); return false;", $kid); ?>
             <div class="keyring {{ $class }}" id="keyring-{{{ $kid }}}">
