@@ -4,6 +4,17 @@ return array(
 
     /*
     |--------------------------------------------------------------------------
+    | Should keyrings be automatically unlocked?
+    |--------------------------------------------------------------------------
+    |
+    | If the login password should be used to try unlocking keyrings, set this
+    | flag to true.
+    |
+    */
+    'auto_unlock_keyrings' => true,
+
+    /*
+    |--------------------------------------------------------------------------
     | Should 2-step verification be used.
     |--------------------------------------------------------------------------
     |

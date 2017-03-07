@@ -1,5 +1,7 @@
 <?php
 
+use Secretstore\Repositories\KeyringRepositoryInterface;
+
 class TwoStepAuthCode {
     /**
      * How long the 2step verification should be.
@@ -43,20 +45,31 @@ class LoginController extends BaseController {
 
     // Session keys.
     const LOGIN_USERNAME = 'login_username';
-    const TWOSTEP_CODE = '2step_code';
+    const LOGIN_PASSWORD = 'login_password';
+    const TWOSTEP_CODE = 'login_2step_code';
 
+    // Settings.
     private $do2StepVerification;
+    private $doAutoUnlockKeyrings;
+
+    private $keyringRepo;
 
     /**
      * Create a new login controller instance.
      *
+     * @param $keyringRepo The keyring repository that is used to auto-unlock
+     *                     keyrings.
      * @return LoginController
      */
-    public function __construct() {
+    public function __construct(KeyringRepositoryInterface $keyringRepo) {
         parent::__construct();
+
+        $this->keyringRepo = $keyringRepo;
 
         $this->do2StepVerification =
             Config::get('secretstore.use_2step_verification');
+        $this->doAutoUnlockKeyrings =
+            Config::get('secretstore.auto_unlock_keyrings');
     }
 
     /**
@@ -80,11 +93,13 @@ class LoginController extends BaseController {
                 // Remembers the user s.t. he can be logged in after 2step
                 // verification.
                 Session::set(self::LOGIN_USERNAME, $username);
+                Session::set(self::LOGIN_PASSWORD, Crypt::encrypt($password));
                 return Redirect::to('login/verify');
             }
         } else {
             // Attempts the login.
             if (Auth::attempt($credentials)) {
+                $this->autoUnlockKeyrings($password);
                 return Redirect::intended();
             }
         }
@@ -156,6 +171,10 @@ class LoginController extends BaseController {
             ->firstOrFail();
         Auth::login($user);
 
+        // Auto-unlocks keyrings.
+        $password = Crypt::decrypt(Session::get(self::LOGIN_PASSWORD));
+        $this->autoUnlockKeyrings($password);
+
         $this->unsetLoginInfo();
 
         return Redirect::intended();
@@ -193,10 +212,28 @@ class LoginController extends BaseController {
     }
 
     /**
+     * Unlocks all keyrings that are protected by the given password.
+     *
+     * @param $password The password to try unlocking the keyrings with.
+     */
+    private function autoUnlockKeyrings($password) {
+        if (!$this->doAutoUnlockKeyrings) {
+            return;
+        }
+
+        // The user is now logged in whereas the keyring repo might have been 
+        // initialized without a valid user around.
+        $this->keyringRepo->reloadUser();
+
+        $this->keyringRepo->unlockAll($password);
+    }
+
+    /**
      * Forgets about any login specific state.
      */
     private function unsetLoginInfo() {
         Session::forget(self::LOGIN_USERNAME);
+        Session::forget(self::LOGIN_PASSWORD);
         Session::forget(self::TWOSTEP_CODE);
     }
 

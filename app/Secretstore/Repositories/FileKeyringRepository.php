@@ -6,6 +6,7 @@ use Illuminate\Auth\UserInterface;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use InvalidArgumentException;
 use Secretstore\Keyrings\Gnome\GnomeKeyring;
+use Symfony\Component\Security\Core\Exception\BadCredentialsException;
 use Validator;
 
 class FileKeyringRepository implements KeyringRepositoryInterface {
@@ -24,6 +25,19 @@ class FileKeyringRepository implements KeyringRepositoryInterface {
 
     public function __construct() {
         $this->user = Auth::check() ? Auth::user() : null;
+        $this->keyringCache = array();
+    }
+
+    public function reloadUser() {
+        $newUser = Auth::check() ? Auth::user() : null;
+        if ($newUser != $this->user) {
+            $this->user = $newUser;
+
+            foreach ($this->keyringCache as $keyring) {
+                $keyring->lock();
+            }
+            $this->keyringCache = array();
+        }
     }
 
     public function all() {
@@ -35,7 +49,12 @@ class FileKeyringRepository implements KeyringRepositoryInterface {
                     self::getKeyringStoragePath($this->user) . '*.keyring');
             foreach ($keyringFiles as $keyringFile) {
                 $id = self::getKeyringIdFromFilename($keyringFile);
-                $keyrings[] = new GnomeKeyring($id, $keyringFile);
+                $keyring = isset($this->keyringCache[$id])
+                    ? $this->keyringCache[$id]
+                    : new GnomeKeyring($id, $keyringFile);
+
+                $this->keyringCache[$id] = $keyring;
+                $keyrings[] = $keyring;
             }
         }
 
@@ -45,8 +64,9 @@ class FileKeyringRepository implements KeyringRepositoryInterface {
     public function find($id) {
         $this->requireUser();
 
-        $keyring = $this->keyringCache[$id];
-        if (!$keyring) {
+        if (isset($this->keyringCache[$id])) {
+            $keyring = $this->keyringCache[$id];
+        } else {
             $keyringFile = self::getFilenameFromKeyringId($this->user, $id);
             if (!File::exists($keyringFile)) {
                 throw new ModelNotFoundException;
@@ -83,6 +103,17 @@ class FileKeyringRepository implements KeyringRepositoryInterface {
 
         if (!$success) {
             throw new Exception('Could not delete keyring.');
+        }
+    }
+
+    public function unlockAll($password) {
+        $keyrings = $this->all();
+        foreach ($keyrings as $keyring) {
+            try {
+                $keyring->unlock($password);
+            } catch (BadCredentialsException $exception) {
+                // Just ignore the error.
+            }
         }
     }
 
